@@ -1,0 +1,468 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>에너지 절약 가전제품</title>
+    <style>
+		/* ===== 기본 설정 ===== */
+		body {
+		    margin: 0;
+		    font-family: 'Segoe UI', sans-serif;
+		    min-height: 100vh;
+		    display: flex;
+		    flex-direction: column;
+		    /* 푸터를 하단에 고정시키기 위한 설정 */
+		}
+
+		/* ===== 헤더 ===== */
+		header {
+		    display: flex;
+		    align-items: center;
+		    justify-content: space-between;
+		    padding: 15px 30px;
+		    background-color: #f8f8f8;
+		    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+		    /* 약간의 그림자 효과 */
+		}
+
+		.logo-site {
+		    display: flex;
+		    align-items: center;
+		}
+
+		#header_logo {
+		    width: 40px;
+		}
+
+		.site-name {
+		    font-size: 1.7rem;
+		    font-weight: bold;
+		}
+
+		nav {
+		    margin-left: 10px;
+		}
+
+		.menu {
+		    display: flex;
+		    gap: 60px;
+		    margin-right: 120px;
+		}
+
+		.menu a {
+		    text-decoration: none;
+		    color: #333;
+		    font-size: 1.3rem;
+		    transition: color 0.3s;
+		    font-weight: bold;
+		}
+
+		.menu a:hover {
+		    color: #2B8122;
+		    /* 마우스 올렸을 때 색상 */
+		}
+
+		/* ===== 메인 ===== */
+		main {
+		    flex: 1;
+		    margin-left: 50px;
+		    margin-right: 50px;
+		    display: flex;
+		    flex-direction: column;
+		}
+
+		.title {
+		    margin-top: 40px;
+		    margin-left: 100px;
+		    margin-right: 100px;
+		}
+
+		.main-header {
+		    display: flex;
+		    justify-content: space-between;
+		    align-items: center;
+		}
+
+		.page-title {
+		    font-size: 2.5rem;
+		    font-weight: bold;
+		    margin: 0;
+		}
+
+		.highlight {
+		    color: #3899EA;
+		}
+
+		.icon-area img {
+		    cursor: pointer;
+		    transition: color 0.3s;
+		    width: 100px;
+		}
+
+		/* ===== 선택 영역 ===== */
+		.select-area {
+		    display: flex;
+		    flex-direction: column;
+		    align-items: center;
+		    margin-top: 40px;
+		}
+
+		#appliance-select {
+		    width: 600px;
+		    padding: 12px 18px;
+		    font-size: 1.1rem;
+		    border-radius: 10px;
+		    background: linear-gradient(135deg, #A8DFFF, #E1F2FF);
+		    color: #222;
+		    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+		    text-align: center;
+		    appearance: none; /* 기본 화살표 제거 */
+		    background-image: url("data:image/svg+xml;charset=UTF-8,%3Csvg width='24' height='24' fill='%23333' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M7 10l5 5 5-5z'/%3E%3C/svg%3E");
+		    background-repeat: no-repeat;
+		    background-position: right 12px center;
+		    background-size: 20px;
+		    transition: all 0.3s ease;
+		    cursor: pointer;
+		}
+		#appliance-select:hover {
+		    box-shadow: 0 6px 14px rgba(56, 153, 234, 0.2);
+		}
+		
+		#appliance-select:focus {
+		    outline: none;
+		    border: 2px solid #3899EA;
+		    box-shadow: 0 0 0 3px rgba(56, 153, 234, 0.3);
+		}
+
+		.select-area h2 {
+		    font-size: 1.8rem;
+		    text-align: center;
+		    margin-bottom: 15px;
+		}
+
+		.select-area .blue {
+		    color: #218621;
+		    /* 강조 색상 */
+		}
+
+		/* ===== 구분선 ===== */
+		.divider {
+		    border: none;
+		    border-top: 2px solid #ccc;
+		    margin: 20px auto;
+		    width: 100%;
+		    /* 전체 너비로 */
+		}
+
+		/* ===== 제품 미선택 시 메시지 영역 ===== */
+		.placeholder {
+		    display: flex;
+		    flex-direction: column;
+		    align-items: center;
+		    justify-content: center;
+		    color: #aaa;
+		    margin-top: 60px;
+		    text-align: center;
+		}
+
+		.placeholder img {
+		    width: 60px;
+		    height: 60px;
+		    opacity: 0.5;
+		    margin-bottom: 15px;
+		}
+
+		/* 별도로 설정된 안내 콘텐츠 */
+		.placeholder-content {
+		    display: flex;
+		    flex-direction: column;
+		    align-items: center;
+		    justify-content: center;
+		    text-align: center;
+		    margin-top: 100px;
+		    color: #aaa;
+		}
+
+		.placeholder-content img {
+		    width: 48px;
+		    height: 48px;
+		    opacity: 0.4;
+		    margin-bottom: 10px;
+		}
+
+		/* ===== 드롭다운 컨테이너 ===== */
+		.dropdown-container {
+		    display: flex;
+		    justify-content: center;
+		    width: 100%;
+		    margin: 40px auto;
+		}
+
+		.dropdown-container select {
+		    width: 400px;
+		    padding: 12px 18px;
+		    font-size: 1.1rem;
+		    border: 1px solid #ccc;
+		    border-radius: 6px;
+		    text-align: center;
+		}
+
+		/* ===== 제품 출력 레이아웃 ===== */
+		.products {
+		    display: flex;
+		    justify-content: center;
+		    flex-wrap: wrap;
+		    gap: 20px;
+		    padding: 20px;
+		}
+
+		/* 제품 카드 (왼쪽 정렬 버전) */
+		.product-buttons {
+		    display: flex !important;
+		    justify-content: flex-start;
+		    flex-wrap: wrap;
+		    gap: 30px;
+		    padding: 40px;
+		}
+
+		/* ===== 제품 카드 스타일 ===== */
+		.product-card,
+		.product-button {
+		    position: relative;
+		    width: 280px;
+		    height: 180px;
+		    padding: 20px;
+		    background-color: #f9f9f9;
+		    border-radius: 12px;
+		    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+		    overflow: hidden;
+		    display: flex;
+		    align-items: center;
+		    justify-content: center;
+		    text-align: center;
+		}
+
+		/* 카드 안의 정보 텍스트 */
+		.product-info {
+		    position: relative;
+		    z-index: 1;
+		    display: flex;
+		    flex-direction: column;
+		    align-items: center;
+		    color: #333;
+		    gap: 5px;
+		    font-size: 0.95rem;
+		}
+		
+		.product-info .company {
+		    color: #222;
+		    font-weight: bold;
+		    font-size: 20px;
+		}
+		
+		.product-info .model {
+		    color: #555;
+		}
+
+		.product-name {
+		    font-weight: bold;
+		    font-size: 1.1rem;
+		    color: #222;
+		}
+
+		.product-subtext {
+		    font-size: 0.95rem;
+		    color: #555;
+		    line-height: 1.4;
+		}
+
+		/* 카드 배경에 흐릿한 이모티콘 이미지 */
+		.icon-bg {
+		    position: absolute;
+		    top: 50%;
+		    left: 50%;
+		    transform: translate(-50%, -50%);
+		    opacity: 0.15;
+		    z-index: 0;
+		}
+
+		.icon-blur {
+		    width: 120px !important;
+		    height: 120px !important;
+		    object-fit: contain;
+		}
+		
+		.product-button {
+		    transition: transform 0.3s ease, box-shadow 0.3s ease;
+		    background: linear-gradient(135deg, #BBDFFF, #E9F1FF);
+		}
+		
+		.product-button:hover {
+		    transform: translateY(-5px) scale(1.03);
+		    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
+		    cursor: pointer;
+		    
+		}
+		
+		/* ===== 푸터 ===== */
+		footer {
+		    text-align: center;
+		    padding: 8px 0;
+		    font-size: 0.85rem;
+		    color: #666;
+		    background-color: #f8f8f8;
+		    width: 100%;
+		    margin-top: auto;
+		    box-shadow: 0 3px 5px rgba(0, 0, 0, 0.8);
+		}
+
+		/* ===== 반응형 ===== */
+		@media (max-width: 768px) {
+		    header {
+		        flex-direction: column;
+		        align-items: flex-start;
+		    }
+
+		    nav {
+		        margin-left: 0;
+		        margin-top: 10px;
+		    }
+
+		    .menu {
+		        flex-direction: column;
+		        gap: 10px;
+		        margin-right: 0;
+		    }
+
+		    .title {
+		        margin-left: 20px;
+		        margin-right: 20px;
+		    }
+
+		    .main-header {
+		        flex-direction: column;
+		        align-items: flex-start;
+		    }
+
+		    .icon-area {
+		        margin-top: 20px;
+		    }
+
+		    #appliance-select {
+		        width: 90%;
+		    }
+		}
+		/* ===== 카드정렬 ===== */
+			.wrap{
+		  	  display: flex;
+		  	  flex-wrap:wrap; /* 줄 바꿈 허용 */
+		  	  gap: 32px;
+		      justify-content: center;
+		      /* max-width: 800px; */ /* 전체 카드 영역 제한 */
+		      margin: 40px auto; /* 중앙 정렬 */
+		      margin-bottom: 80px;
+		      padding: 0 16px; /* 좌우 여백 */  
+		      position: relative;
+		      /* top: 100px; */  
+  		}
+    </style>
+</head>
+
+<body>
+
+    <!-- 헤더  -->
+    <header>
+        <div class="logo-site">
+			<a href="/" style="display: flex; align-items: center; text-decoration: none; color: inherit;">
+			    <div class="logo"><img src="/icon/메인로고_배경투명화.png" id="header_logo"></div>
+			    <div class="site-name">A.P.T</div>
+			</a>
+        </div>
+        <nav>
+            <div class="menu">
+              <a href="calculation">대기전력 계산</a>
+		      <a href="/dashboard">전력 사용량 통계</a>
+		      <a href="/feeCompare">전력 사용량 비교</a>
+		      <a href="/product">가전 제품 추천</a>
+            </div>
+        </nav>
+    </header>
+
+    <!-- 제목 + 셀렉트 박스 -->
+    <form id="productForm" method="get" th:action="@{/product/details}">
+    <main>
+        <div class="title">
+            <div class="main-header">
+                <h1 class="page-title">에너지 절약 효과가 있는<br><span class="highlight">가전제품</span>은?</h1>
+                <div class="icon-area">
+                    <img src="/icon/메인_추천.png" alt="에너지 아이콘" />
+                </div>
+            </div>
+
+            <div class="dropdown-container">
+                <select id="appliance-select" name="itemTable" class="custom-select"  onchange="document.getElementById('productForm').submit()" >
+                    <option value="">제품을 선택하세요</option>
+                    <option th:each="prod : ${productList}" th:value="${prod.itemTable}" th:text="${prod.itemName}" 
+                            th:selected="${prod.itemTable == selectedItemTable}"></option>
+                </select>
+            </div>
+
+            <hr class="divider" />
+            
+			<p style="text-align: center;">
+			  출처는 
+			  <a href="https://www.energy.or.kr/" target="_blank" style="color: inherit; text-decoration: underline;">
+			    한국에너지공단
+			  </a>
+			  이며, 2020년 이후 발매 제품을 대상으로 에너지 소비 효율, 월(연)간 에너지 비용 등을 고려하여 우수한 상위 50개의 제품을 선별하였습니다.
+			</p>
+			
+            <!-- 제품 결과 -->
+            <div id="product-display" class="placeholder-content">
+                <!-- 선택된 제품이 없을 때 -->
+			    <div th:if="${detailList == null or #lists.isEmpty(detailList)}" class="placeholder-content">
+			        <img src="/icon/전기료비교_돋보기.png" class="search-icon" />
+			        <p class="guide-text">제품을 선택하세요.</p>
+			    </div>
+			
+			    <!-- 제품 리스트 출력 -->
+			    <div class="wrap">
+			    <div th:each="item : ${detailList}" class="product-button"
+			    	th:attr="data-model=${item['MODEL_NAME']}, data-company=${item['COMPANY_NAME']}" 
+			    	onclick="searchProduct(this)">
+			        <div class="icon-bg">
+			            <img th:src="@{'/icon/' + ${selectedItemTable} + '.png'}" class="icon-blur" />
+			        </div>
+			        <div class="product-info">
+			            <p class="company" th:text="${item['COMPANY_NAME']}">회사명</p>
+			            <p class="model" th:text="'모델: ' + ${item['MODEL_NAME']}">모델명</p>
+			        </div>
+			    </div>
+			    </div>
+            </div>
+        </div>
+    </main>
+    </form>
+
+    <!-- 푸터 -->
+    <footer>
+        <p>© 2025 A.P.T All rights reserved.</p>
+        <p>Made with 🖥️ by E.F</p>
+    </footer>
+ <script>
+  function searchProduct(button) {
+    const model = button.getAttribute('data-model');
+    const company = button.getAttribute('data-company');
+    
+    if (model && company) {
+      const query = `${company} ${model}`;
+      const url = 'https://www.coupang.com/np/search?component=&q=' + encodeURIComponent(query);
+      window.open(url, '_blank'); // 새 탭에서 검색
+    }
+  }
+</script>
+</body>
+
+</html>

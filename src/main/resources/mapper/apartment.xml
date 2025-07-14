@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "//mybatis.org/DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.project.apt.apartment.dao.IAptDAO">
+
+	<!-- 구 불러오기 -->
+	<select id="getDistrictList" resultType="String">
+		SELECT DISTINCT district
+		FROM apartments
+	</select>
+	
+	<!-- 동 불러오기 -->
+	<select id="getDongList" parameterType="String" resultType="String">
+		SELECT DISTINCT dong
+		FROM apartments
+		WHERE district = #{district}
+	</select>
+	
+	<!-- 비교 년도 불러오기 -->
+	<select id="getYearList" resultType="String">
+		SELECT DISTINCT year
+		FROM electricity_fee
+		ORDER BY year DESC
+	</select>
+	
+	<!-- 비교 월 불러오기 -->
+	<select id="getMonthList" resultType="String">
+		SELECT DISTINCT month
+		FROM electricity_fee
+		ORDER BY month asc
+	</select>
+	
+	<!-- (비교페이지) 우리집(아파트) 검색 결과 -->
+	<select id="getMyAptList" resultType="com.project.apt.apartment.vo.AptAddressVO">
+		SELECT kapt_code, kapt_name, sido || ' ' || district || ' ' || dong || ' ' || address_num as address
+		FROM apartments
+		WHERE dong = #{dong}
+		AND address_num = #{addressNum}
+	</select>
+	
+	<!-- (비교페이지) 다른집(아파트) 검색 결과 -->
+	<select id="getOtherAptList" parameterType="String" resultType="com.project.apt.apartment.vo.AptAddressVO">
+		SELECT kapt_code, kapt_name, sido || ' ' || district || ' ' || dong || ' ' || address_num as address
+		FROM apartments
+		WHERE dong = #{dong}
+	</select>
+	
+	<!-- 우리집 전기요금 불러오기 -->
+	<select id="getMyAptElectricFee" parameterType="String" resultType="com.project.apt.apartment.vo.AptElectricFeeVO">
+		SELECT e.kapt_code, e.year, e.month, e.public_fee, e.private_fee, a.household
+		FROM electricity_fee e, apartments a
+		WHERE e.kapt_code = a.kapt_code
+		AND e.kapt_code = #{kaptCode}
+		AND e.year = #{year}
+		AND e.month = #{month}
+	</select>
+	
+	<!-- 다른집 전기요금 불러오기 -->
+	<select id="getOtherAptElectricFee" parameterType="String" resultType="com.project.apt.apartment.vo.AptElectricFeeVO">
+		SELECT e.kapt_code, e.year, e.month, e.public_fee, e.private_fee, a.household
+		FROM electricity_fee e, apartments a
+		WHERE e.kapt_code = a.kapt_code
+		AND e.kapt_code = #{kaptCode}
+		AND e.year = #{year}
+		AND e.month = #{month}
+	</select>
+
+</mapper>

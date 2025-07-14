@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "//mybatis.org/DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.project.apt.product.dao.IProductDAO">
+	<!-- parameterType(input) resultType(output) -->
+
+	<select id="getProductList"
+		resultType="com.project.apt.product.vo.ProductListVO">
+		SELECT item_name, item_table
+		FROM product_list
+	</select>
+
+	<select id="getItemDetails" resultType="map" parameterType="string">
+		<choose>
+			<!-- 1. TV: 화면 면적당 소비전력 (낮을수록 좋음) -->
+			<when test="_parameter == 'tv'">
+			    SELECT company_name, model_name
+			    FROM tv
+			    ORDER BY wattage_per_square_meter ASC
+			    FETCH FIRST 50 ROWS ONLY
+			</when>
+			
+			<!-- 2. 공기청정기: 연간에너지비용 -->
+			<when test="_parameter == 'air_purifier'">
+			    SELECT company_name, model_name
+			    FROM air_purifier
+			    ORDER BY annual_energy_cost ASC
+			    FETCH FIRST 50 ROWS ONLY
+			</when>
+			
+			<!-- 3. 밥솥: 연간에너지비용 -->
+			<when test="_parameter == 'rice_cooker'">
+			    SELECT company_name, model_name
+			    FROM rice_cooker
+			    ORDER BY annual_energy_cost ASC
+			    FETCH FIRST 50 ROWS ONLY
+			</when>
+			
+			<!-- 4. 김치냉장고: 연간에너지비용 -->
+			<when test="_parameter == 'kimchi_refrigerator'">
+			    SELECT company_name, model_name
+			    FROM kimchi_refrigerator
+			    ORDER BY annual_energy_cost ASC
+			    FETCH FIRST 50 ROWS ONLY
+			</when>
+			
+			<!-- 5. 전자레인지: 대기전력 기준 (낮을수록 좋음) -->
+			<when test="_parameter == 'microwave_oven'">
+			    SELECT company_name, model_name
+			    FROM microwave_oven
+			    ORDER BY standby_power_watt ASC
+			    FETCH FIRST 50 ROWS ONLY
+			</when>
+			
+			<!-- 6. 선풍기: meps 등급 (높을수록 좋음 → 내림차순 정렬) -->
+			<when test="_parameter == 'fan'">
+			    SELECT company_name, model_name
+			    FROM fan
+			    ORDER BY meps DESC
+			    FETCH FIRST 50 ROWS ONLY
+			</when>
+			
+			<!-- 7. 공유기: 정격전력 기준 (낮을수록 좋음) -->
+			<when test="_parameter == 'router'">
+			    SELECT company_name, model_name
+			    FROM router
+			    ORDER BY rated_power_watt ASC
+			    FETCH FIRST 50 ROWS ONLY
+			</when>
+			
+			<!-- 8. 비데: 대기전력 기준 -->
+			<when test="_parameter == 'bidet'">
+			    SELECT company_name, model_name
+			    FROM bidet
+			    ORDER BY standby_power_watt ASC
+			    FETCH FIRST 50 ROWS ONLY
+			</when>
+			
+			<!-- 9. 냉장고: 월간소비전력 (낮을수록 좋음) -->
+			<when test="_parameter == 'refrigerator'">
+			    SELECT company_name, model_name
+			    FROM refrigerator
+			    ORDER BY monthly_electricity_consumption ASC
+			    FETCH FIRST 50 ROWS ONLY
+			</when>
+			
+			<!-- 10. 에어컨: 월간소비전력 기준 -->
+			<when test="_parameter == 'airconditioning'">
+			    SELECT company_name, model_name
+			    FROM airconditioning
+			    ORDER BY monthly_electricity ASC
+			    FETCH FIRST 50 ROWS ONLY
+			</when>
+			
+			<!-- 예외 처리 -->
+			<otherwise>
+			    SELECT '오류' AS company_name, '테이블 없음' AS model_name FROM dual
+			</otherwise>
+		</choose>
+	</select>
+
+</mapper>

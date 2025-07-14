@@ -1,0 +1,313 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+	 <title>A.P.T 프로젝트</title>
+	  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700&display=swap" rel="stylesheet">
+	  <style>
+		@font-face {
+		  font-family: 'BinggraeBold';
+		  src: url('/fonts/Binggrae-Bold.ttf') format('truetype');
+		}
+
+		@font-face {
+		  font-family: 'PoetsenOne';
+		  src: url('/fonts/PoetsenOne-Regular.ttf') format('truetype');
+		}
+		/* 전체 페이지 기본 설정 */
+		body {
+		  margin: 0;
+		  font-family: 'BinggraeBold', sans-serif;
+		  background-color: #CCE3B7; /* 연한 연두 배경 */
+		  color: #222; /* 기본 글자색 */
+		}
+
+		    .hero-section {
+		      background-color: #CCE3B7;
+		      display: flex;
+		      flex-direction: column;
+		      align-items: center;
+		      justify-content: flex-start;
+		      padding: 60px 20px 20px;
+		    }
+
+		    .bulb-image {
+		      width: 100%;
+		      max-width: 500px;
+		      height: auto;
+		    }
+
+		    .text-container {
+		      /* margin-top: 50px; */
+		      text-align: center;
+		      max-width: 50%;
+		      padding: 0 20px;
+		      color: #222;
+		    }
+
+		    .text-container h1 {
+		      font-size: 2.5rem;
+		      font-weight: 700;
+		      margin-bottom: 10px;
+		    }
+
+		    .text-container p {
+		      font-size: 1rem;
+		      margin: 6px 0;
+		      line-height: 1.6;
+		    }
+
+		    @media (max-width: 768px) {
+		      .text-container h1 {
+		        font-size: 2rem;
+		      }
+		      .text-container p {
+		        font-size: 0.95rem;
+		      }
+		    }
+
+
+		/* 내부 컨테이너: 이미지와 텍스트 정렬 */
+		.hero-inner {
+		  display: flex;
+		  flex-direction: column;
+		  align-items: center;
+		  text-align: center;
+		  max-width: 1000px;
+		}
+
+		/* 전구 이미지 */
+		.bulb-image {
+		  width: 100%;
+		  height: auto;
+		  display: block;
+		}
+
+		/* 소개 텍스트 위치 조정 */
+		/* 텍스트를 이미지 위로 띄우기 */
+		.intro-text {
+		  position: absolute;
+		  /* top: 5%;  이미지 기준 위치로 조절 가능 */
+		  left: 50%;
+		  transform: translateX(-50%);
+		  text-align: center;
+		  max-width: 90%;
+		  color: #222;
+		}
+
+		/* 프로젝트명 */
+		.intro-text h1 {
+		  font-size: 2.4rem;
+		  margin-bottom: 10px;
+		}
+
+		/* 소개 문단들 */
+		.intro-text p {
+		  font-size: 1.1rem;
+		  margin: 6px 0;
+		  line-height: 1.6;
+		}
+
+		/* 메뉴 영역: 버튼 그리드 */
+		.menu-grid {
+		  display: grid;
+		  grid-template-columns: repeat(4, 1fr); /* 4열 */
+		  gap: 50px;
+		  max-width: 1200px;
+		  margin: 50px auto;
+		  margin-bottom: 100px;
+		}
+
+		/* 각 버튼 공통 스타일 */
+		.menu-button {
+			text-decoration: none;   /* 밑줄 제거 */
+			color: inherit;          /* 부모 색상 상속 → 기존 글자색 유지 */
+		  background-color: #b8e6b5;
+		  padding: 25px 20px;
+		  border-radius: 12px;
+		  display: flex;
+		  flex-direction: column;
+		  align-items: flex-start;
+		  justify-content: flex-start;
+		  text-align: left;
+		  height: 200px;
+		  border: none;
+		  cursor: pointer;
+		  transition: transform 0.3s ease, background-color 0.3s;
+		  position: relative;
+		}
+
+		/* 마우스 호버 효과 */
+		.menu-button:hover {
+		  transform: translateY(-5px);
+		  background-color: #a5d8a4;
+		}
+
+		/* 버튼 안 아이콘 위치 */
+		.menu-icon {
+		  position: absolute;
+		  bottom: 10px;
+		  right: 10px;
+		}
+
+		/* 아이콘 이미지 크기 */
+		.menu-icon img {
+		  width: 90px;
+		  height: 90px;
+		}
+
+		/* 버튼 텍스트 */
+		.menu-text {
+		  text-decoration: none;
+		  font-size: 1.6rem;
+		  font-weight: 900;
+		  line-height: 1.3;
+		  margin-bottom: 10px;
+		}
+
+		/* 각 버튼의 색상 */
+		.menu-button.green_1 { background-color: #A8E3A2; }
+		.menu-button.green_2 { background-color: #95D88E; }
+		.menu-button.green_3 { background-color: #6FBD88; }
+		.menu-button.green_4 { background-color: #5CAC76; }
+
+		/* 반응형 레이아웃 - 태블릿 */
+		@media (max-width: 768px) {
+		  .menu-grid {
+		    grid-template-columns: repeat(2, 1fr);
+		  }
+		}
+
+		/* 반응형 레이아웃 - 모바일 */
+		@media (max-width: 480px) {
+		  .menu-grid {
+		    grid-template-columns: 1fr;
+		  }
+		}
+		
+		.hero-container {
+		  display: flex;
+		  position: relative;
+		  flex-direction: column;
+		  align-items: center;
+		  text-align: center;
+		  padding: 40px 10px 20px;
+		}
+		
+		.overlay-text {
+		font-family: 'PoetsenOne', sans-serif;
+		  margin-bottom: 20px;
+		  text-align: center;
+		}
+
+		.overlay-text h1 {
+		  font-size: 4.3rem; /* 제목 크기 */
+		  font-weight: 700;
+		  margin-bottom: 8px;
+		}
+
+		.overlay-text p {
+		  font-size: 1.5rem; /* 부제 크기 */
+		  margin: 0;
+		}
+		/* 상단 제목과 부제 */
+		.intro-text {
+		  margin-bottom: 10px;
+		}
+
+		.intro-text h1 {
+		  font-size: 2.2rem;
+		  font-weight: 700;
+		  margin-bottom: 5px;
+		}
+
+		.intro-text p {
+		  font-size: 1rem;
+		  color: #333;
+		}
+
+		/* 지구 이미지 */
+		.bulb-image {
+		    max-width: 800px;  /* max-width 값 증가 또는 제거 */
+		    width: 100%;        /* 화면 크기에 맞게 조정 */
+		    height: auto;       /* 비율에 맞게 크기 자동 조정 */
+		    margin-bottom: 20px;
+		}
+
+
+		/* 이미지 아래 설명 */
+		.text-container {
+		  max-width: 90%;
+		  color: #333;
+		  font-size: 0.95rem;
+		  line-height: 1.6;
+		  margin: 10px 0;
+		}
+
+		/* 하단 푸터 */
+		footer {
+		  text-align: center;
+		  padding: 10px 0;
+		  font-size: 0.85rem;
+		  color: #666;
+		  background-color: #f8f8f8;
+		  margin-top: 40px; /* 푸터 위쪽 간격을 늘림 */
+		}
+		.computer-icon {
+		  font-size: 1rem;
+		}
+	  </style>
+	</head>
+	<body>
+	  <!-- 전구 이미지와 설명 텍스트 -->
+	  <div class="hero-section">
+	    <div class="text-container">
+		 <div class="overlay-text">
+			<h1>A.P.T</h1>
+		    <p>(Analytics for Passive power Trimming)</p>
+		  </div>
+	    <img src="/icon/지구움짤.gif" alt="전구 이미지" class="bulb-image">
+		</div>
+		 <!--  <p>대기전력 절감을 위한 사용자 맞춤 에너지 세이브 시스템으로, 우리집과 지역의 전력 사용량 통계를 한눈에 보여줍니다.</p>
+	      <p>A.P.T는 가전 대기전력을 줄이고, 맞춤형 절약 정보를 제공하며, 우리집과 다른 집의 전력 사용 패턴을 데이터로 확인할 수 있는 스마트 에너지 분석 시스템입니다.</p> -->
+	      <p style="font-size: 24px;">대기전력을 줄이고, 우리집과 지역의 전력 사용량을 손쉽게 비교해보세요.</p>
+	      <p style="font-size: 24px;">당신의 일상 속 숨은 전기 낭비, A.P.T가 똑똑하게 찾아드립니다.
+	      </p>
+	    </div>
+	  </div>
+
+	  <!-- 메뉴 섹션: 버튼 형태로 표시 -->
+	  <div class="menu-section">
+	    <div class="menu-grid">
+	      <a th:href="@{/calculation}" class="menu-button green_1">
+	        <div class="menu-icon">
+	          <img src="/icon/메인_계산.png" alt="계산기 아이콘">
+	        </div>
+	        <div class="menu-text">대기전력<br> 계산</div>
+	      </a>
+		  <a th:href="@{/dashboard}" class="menu-button green_2">
+	        <div class="menu-icon">
+	          <img src="/icon/메인_통계.png" alt="차트 아이콘">
+	        </div>
+	        <div class="menu-text">전력 사용량<br> 통계</div>
+	      </a>
+	      <a th:href="@{/feeCompare}" class="menu-button green_3">
+	        <div class="menu-icon">
+	          <img src="/icon/메인_사용량비교.png" alt="비교 아이콘">
+	        </div>
+	        <div class="menu-text">우리집 다른집<br>전력 사용량 비교</div>
+	      </a>
+ 		  <a th:href="@{/product}" class="menu-button green_4">
+	        <div class="menu-icon">
+	          <img src="/icon/메인_추천.png" alt="추천 아이콘">
+	        </div>
+	        <div class="menu-text">가전 제품<br> 추천</div>
+	      </a>
+	    </div>
+	  </div>
+
+	  <!-- 푸터 -->
+	  <footer>
+		<p>© 2025 A.P.T All rights reserved.</p>
+		<p>Made with <span class="computer-icon">💻</span> by E.F</p>
+	  </footer>
+	</body>
+	</html>

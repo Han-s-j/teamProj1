@@ -1,0 +1,625 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>전기세 비교</title>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+</head>
+    <!-- 부트스트랩 링크 -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/js/bootstrap.bundle.min.js"></script>
+<style>
+	html, body {
+	  height: 100%;
+	  margin: 0;
+	  display: flex;
+	  flex-direction: column;
+	}
+    body {
+      margin: 0;
+      font-family: 'Segoe UI', sans-serif;
+    }
+    /* 헤더 시작 */
+    header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 15px 30px;
+      background-color: #f8f8f8;
+      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    }
+
+    .logo-site {
+      display: flex;
+      align-items: center;
+    }
+    /* 내비 로고 */
+    #header_logo {
+      width: 40px;
+    }
+
+    .site-name {
+      font-size: 1.7rem;
+      font-weight: bold;
+    }
+
+    nav {
+      margin-left: 10px; /* 사이트명과 메뉴 사이 간격 */
+    }
+
+    .menu {
+      display: flex;
+      gap: 60px;
+      margin-right: 120px;
+    }
+    /* 내비 메뉴 링크 */
+    .menu a {
+      text-decoration: none;
+      color: #333;
+      font-size: 1.3rem;
+      transition: color 0.3s;
+      font-weight: bold;
+    }
+    /* 내비 메뉴 커서 효과 */
+    .menu a:hover {
+      color: #2B8122;
+    }
+
+    @media (max-width: 768px) {
+      header {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+
+      nav {
+        margin-left: 0;
+        margin-top: 10px;
+      }
+
+      .menu {
+        flex-direction: column;
+        gap: 10px;
+      }
+    }
+
+    /* main 시작*/
+    main {
+		flex: 1;
+        margin-left: 50px;
+        margin-right: 50px;
+    }
+    .title{
+        margin-top: 40px; /* 헤더와의 간격 추가 */
+        margin-left: 100px;
+        margin-right: 100px;
+    }
+    .main-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .page-title {
+        font-size: 2.5rem;
+        font-weight: bold;
+        margin: 0;
+    }
+
+    /* 아이콘 추가 시 크기 조절이나 여백 조절 가능 */
+    .icon-area img {
+        cursor: pointer;
+        transition: color 0.3s;
+        width: 120px;
+    }
+    /* 타이틀 제목 글씨 색 변경 */
+    .highlight {
+    color: #DAB500;
+    }
+    /* 우리 집, 다른 집 조회  */
+    .comparison-container {
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    gap: 40px;
+    margin-top: 40px;
+    flex-wrap: wrap;
+  }
+
+  .box-wrapper {
+    border: 2px solid #e0e0e0;
+    border-radius: 12px;
+    padding: 20px 30px 30px 30px;
+    width: 320px;
+  }
+
+  .box-title-home,
+  .box-title-other {
+    font-weight: bold;
+    font-size: 1.2rem;
+    text-align: center;
+    margin-bottom: 8px;
+    padding: 6px 160px;
+    border-radius: 8px;
+    display: inline-block;
+  }
+
+  .box-title-home {
+    background-color: #FBE5A2;
+  }
+  .box-title-other {
+    background-color: #A7EDE3;
+  }
+
+  .input-group {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+  }
+
+  .input-group label {
+    font-size: 0.9rem;
+    font-weight: 600;
+    margin-bottom: 5px;
+  }
+
+  .input-group select,
+  .input-group input {
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    font-size: 1rem;
+  }
+
+  .search-btn {
+    margin-top: 20px;
+    width: 100%;
+    padding: 10px;
+    font-size: 1.1rem;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+  }
+
+  .home-box {
+    /* background-color: #FFF3C4; */
+    background-color: white;
+    border-color: #FFD966;
+    width: 100%;
+  }
+
+  .home-box .search-btn {
+    background-color: #F5D776;
+  }
+
+  .other-box {
+    background-color: white;
+    border-color: #A7EDE3;
+    padding-bottom: 30px;
+    width: 100%;
+  }
+
+  .other-box .search-btn {
+    background-color: #8be2d5;
+    margin-top: 80px;
+  }
+
+  /* 테이블 */
+  .table-wrapper {
+    margin-top: 20px;
+    width: 100%;
+  }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    text-align: center;
+    font-size: 0.95rem;
+  }
+
+  .home-table thead {
+    background-color: #FBE5A2;
+    font-weight: bold;
+  }
+
+  .other-table thead {
+    background-color: #c7f0ee;
+    font-weight: bold;
+  }
+
+  .home-table td,
+  .home-table th {
+    border: 1px solid #f2c94c;
+    padding: 8px;
+  }
+
+  .other-table td,
+  .other-table th {
+    border: 1px solid #6dd5c5;
+    padding: 8px;
+  }
+
+  /* 비교 버튼 */
+  .compare-button {
+    background-color: #A8E3A2;
+    color: black;
+    font-weight: bold;
+    padding: 12px 32px;
+    font-size: 1.2rem;
+    border: none;
+    border-radius: 20px;
+    cursor: pointer;
+    width: 350px;
+    margin-bottom: 100px;
+    margin-top: 40px;
+  }
+
+    /* ===== 페이징 버튼 ===== */
+    .pagination-container {
+    display: flex;
+    justify-content: center;
+    margin-top: 15px;
+    gap: 8px;
+    }
+
+    .pagination-btn {
+    background-color: #eee;
+    border: 1px solid #ccc;
+    padding: 8px 14px;
+    border-radius: 6px;
+    font-size: 0.9rem;
+    cursor: pointer;
+    transition: background-color 0.3s;
+    }
+
+    .pagination-btn:hover {
+    background-color: #ccc;
+    }
+
+    #home-pagination .pagination-btn.active {
+    background-color: #FBE5A2;  /* 우리집 하이라이트 색 */
+    border-color: #f2c94c;
+    font-weight: bold;
+    }
+
+    #other-pagination .pagination-btn.active {
+    background-color: #A7EDE3;  /* 다른집 하이라이트 색 */
+    border-color: #6dd5c5;
+    font-weight: bold;
+    }
+    
+    .mySelected {
+	  background-color: #fff4c2; /* 노랑 */
+	  font-weight: bold;
+	}
+
+	.otherSelected {
+	  background-color: #d6f5e8;
+	  font-weight: bold;
+	}
+	/* ===== 푸터 ===== */
+	footer {
+	    text-align: center;
+	    padding: 8px 0;
+	    font-size: 0.85rem;
+	    color: #666;
+	    background-color: #f8f8f8;
+	    width: 100%;
+	    margin-top: auto;
+	    box-shadow: 0 3px 5px rgba(0, 0, 0, 0.8);
+	}
+	footer p:first-of-type {
+	  margin-top: 6px;  
+	}	
+</style>
+<body>
+    <!-- 헤더 시작 -->
+<header>
+    <div class="logo-site">
+      <!-- 내비 로고 -->
+	  <a href="/" style="display: flex; align-items: center; text-decoration: none; color: inherit;">
+	     <div class="logo"><img src="./icon/메인로고_배경투명화.png" id="header_logo"></div>
+	     <!-- 내비 사이트(프로젝트) 이름 -->
+	     <div class="site-name">A.P.T</div>
+	  </a>
+    </div>
+    <nav>
+      <!-- 내비 메뉴 -->
+      <div class="menu">
+	      <a href="calculation">대기전력 계산</a>
+	      <a href="/dashboard">전력 사용량 통계</a>
+	      <a href="/feeCompare">전력 사용량 비교</a>
+	      <a href="/product">가전 제품 추천</a>
+      </div>
+    </nav>
+  </header>
+  <!-- 헤더 끝 -->
+   <main>
+    <!-- 페이지 제목+아이콘 시작 -->
+    <section class="title">
+        <div class="main-header">
+            <h1 class="page-title">
+                우리 집과 다른 집<br><span class="highlight">전기세</span>
+                차이는?
+              </h1>
+            <div class="icon-area">
+              <!-- 아이콘 예시: Font Awesome 아이콘 또는 SVG 등 사용 가능 -->
+              <img class="fa-solid fa-gear" src="./icon/전기료비교_비교.png">
+            </div>
+          </div>
+    </section>
+    <!-- 페이지 제목+아이콘 끝 -->
+    <!-- 우리 집, 다른 집 조회 -->
+    <section class="comparison-container">
+        <!-- 우리 집 -->
+      <div style="display: flex; flex-direction: column; align-items: center;">
+        <div class="box-title-home">우리 집</div>
+        <div class="box-wrapper home-box">
+          <div class="input-group">
+            <div>
+              <label for="year-home">조회날짜</label>
+              <select id="year-home" style="width: 95px;">
+                <option th:each="year : ${yearList}" th:value="${year}" th:text="${year}"></option>
+              </select>
+              <select id="date-home" style="width: 100px;">
+                <option th:each="month : ${monthList}" th:value="${month}" th:text="${month}"></option>
+              </select>
+            </div>
+            <div>
+              <label>지역검색</label>
+              <!-- <div style="display: flex; gap: 10px;"> -->
+                <select style="width: 95px;" class="districtSelect">
+                  <option>자치구</option>
+                  <option th:each="dist : ${districtList}" th:value="${dist}" th:text="${dist}"></option>
+                </select>
+                <select style="width: 100px;" class="dongSelect" id="myDongSelect">
+                  <option>동</option>
+                </select>
+              <!-- </div>  -->
+            </div>
+            <div>
+              <label for="address-search">주소 검색</label>
+              <input type="text" id="address-search" placeholder="주소 입력">
+            </div>
+          </div>
+          <button class="search-btn" id="mySearchBtn">조회</button>
+        </div>
+        <!-- 표 -->
+      <div class="table-wrapper table-home" style="display: none;">
+        <table class="home-table">
+          <thead>
+            <tr>
+              <th>아파트이름</th>
+              <th>주소</th>
+            </tr>
+          </thead>
+          <tbody id="myAptResultBody">
+            <!-- script로 추가됨 -->
+          </tbody>
+        </table>
+      </div>
+      </div>
+        <!-- 다른 집 -->
+      <div style="display: flex; flex-direction: column; align-items: center;">
+        <div class="box-title-other">다른 집</div>
+        <div class="box-wrapper other-box">
+          <div class="input-group">
+            <div>
+              <label for="year-other">조회날짜</label>
+              <select id="year-other" style="width: 95px;">
+                <option th:each="year : ${yearList}" th:value="${year}" th:text="${year}"></option>
+              </select>
+              <select id="date-other" style="width: 100px;">
+                <option th:each="month : ${monthList}" th:value="${month}" th:text="${month}"></option>
+              </select>
+            </div>
+            <div>
+              <label>지역검색</label>
+              <!-- <div style="display: flex; gap: 10px;"> -->
+                <select style="width: 95px;" class="districtSelect">
+                  <option>자치구</option>
+                  <option th:each="dist : ${districtList}" th:value="${dist}" th:text="${dist}"></option>
+                </select>
+                <select style="width: 100px;" class="dongSelect" id="otherDongSelect">
+                  <option>동</option>
+                </select>
+              <!-- </div> -->
+            </div>
+          </div>
+          <button class="search-btn" onclick="showTable('other')" id="otherDongBtn">조회</button>
+        </div>
+         <!-- 표 -->
+        <div class="table-wrapper table-other" style="display: none;">
+          <table class="other-table">
+            <thead>
+              <tr>
+                <th>아파트이름</th>
+                <th>주소</th>
+              </tr>
+            </thead>
+            <tbody id="otherAptResultBody">
+				<!-- script로 추가될 부분 -->
+            </tbody>
+          </table>
+        </div>
+	</div><!-- 안 닫혀있어서 수정함 -->
+      </section>
+      <!-- 비교 버튼 -->
+    <div style="text-align: center; margin-top: 20px;">
+		<form style="text-align: center; margin-top: 20px;">
+			<input type="hidden" name="myKaptCode" id="myKaptCode">
+			<input type="hidden" name="otherKaptCode" id="otherKaptCode">
+			<button class="compare-button" onclick="openComparisonPopup()">비교</button>
+		</form>
+    </div>
+    <!-- 비교 결과 표시 영역 -->
+    <div id="comparison-result" style="display: none; margin-top: 30px; text-align: center;">
+      <div class="box-title-home" style="margin-right: 20px;">우리 집</div>
+      <div class="box-title-other" style="margin-left: 20px;">다른 집</div>
+        </div>
+    <!-- </div> -->
+   </main>
+   <!-- 푸터 -->
+    <footer>
+        <p>© 2025 A.P.T All rights reserved.</p>
+        <p>Made with 🖥️ by E.F</p>
+    </footer>
+<script>
+  function showTable(type) {
+    if (type === 'home') {
+      document.querySelector('.table-home').style.display = 'block';
+    } else if (type === 'other') {
+      document.querySelector('.table-other').style.display = 'block';
+    }
+  }
+</script>
+
+<!-- 동 출력 -->
+<script>
+	$('.districtSelect').on('change', function () {
+	  const district = $(this).val();
+	  const $dongSelect = $(this).closest('.input-group').find('.dongSelect');
+	
+	  $.ajax({
+	    url: '/dongList',
+	    type: 'GET',
+	    data: { district },
+	    success: function (dongList) {
+	    	$dongSelect.empty();
+	      dongList.forEach(dong => {
+	        $dongSelect.append(`<option value="${dong}">${dong}</option>`);
+	      });
+	    }
+	  });
+	});
+</script>
+
+<!-- 우리집 검색 -->
+<script>
+	// 우리집 아파트 리스트 조회 함수
+	function loadMyAptList(dong, addressNum) {
+	  fetch(`/getMyAptList?dong=${dong}&addressNum=${addressNum}`)
+	    .then(response => response.json())
+	    .then(data => {
+	      const tbody = document.getElementById("myAptResultBody");
+	      tbody.innerHTML = "";
+	
+	      data.forEach(apt => {
+	        const row = document.createElement("tr");
+	        row.setAttribute("data-code", apt.kaptCode);
+	        row.style.cursor = "pointer";
+	
+	        row.addEventListener("click", function () {
+	          document.getElementById("myKaptCode").value = this.getAttribute("data-code");
+			  // kaptCode 확인
+			  console.log("우리집: ", document.getElementById("myKaptCode").value)
+	          
+	          document.querySelectorAll(".home-table tbody tr").forEach(r => r.classList.remove("mySelected"));
+	          this.classList.add("mySelected");
+	        });
+	
+	        row.innerHTML = `
+	          <td>${apt.kaptName}</td>
+	          <td>${apt.address}</td>
+	        `;
+	
+	        tbody.appendChild(row);
+	      });
+	    });
+	}
+	
+	// 조회 버튼 클릭 이벤트 연결
+	document.getElementById("mySearchBtn").addEventListener("click", function () {
+	  const dong = document.getElementById("myDongSelect").value;
+	  const addressNum = document.getElementById("address-search").value;
+	
+	  if (!dong || dong === "동" || !addressNum) {
+	    alert("동과 번지를 모두 입력하세요!");
+	    return;
+	  }
+	
+	  showTable("home"); // 테이블 표시
+	  loadMyAptList(dong, addressNum); // 데이터 불러오기
+	});
+</script>
+
+<!-- 다른집 검색 -->
+<script>
+	document.getElementById("otherDongBtn").addEventListener("click", function () {
+		const dong = document.getElementById("otherDongSelect").value;
+	
+		  if (!dong || dong === "동") {
+			    alert("동을 선택해주세요!");
+			    return;
+			  }
+		  
+		  
+		  fetch(`/getOtherAptList?dong=${dong}`)
+		    .then(response => response.json())
+		    .then(data => {
+		      const tbody = document.getElementById("otherAptResultBody");
+		      tbody.innerHTML = ""; // 기존 행 제거
+	
+		      data.forEach(apt => {
+		        const row = document.createElement("tr");
+		        row.setAttribute("data-code", apt.kaptCode);
+		        row.style.cursor = "pointer";
+	
+		        row.addEventListener("click", function () {
+		          // kaptCode 저장
+		          document.getElementById("otherKaptCode").value = this.getAttribute("data-code");
+				  // kaptCode 저장 확인
+				  console.log("다른집: ", document.getElementById("otherKaptCode").value)
+		          
+		          // 선택 효과
+		          document.querySelectorAll(".other-table tbody tr").forEach(r => r.classList.remove("otherSelected"));
+		          this.classList.add("otherSelected");
+		          
+		          document.querySelectorAll(".home-table tbody tr").forEach(r => r.classList.remove("otherSelected"));
+		        });
+	
+		        row.innerHTML = `
+		          <td>${apt.kaptName}</td>
+		          <td>${apt.address}</td>
+		        `;
+	
+		        tbody.appendChild(row);
+		      });
+		    });
+		});
+</script>
+
+<!-- 비교 버튼 클릭 시 팝업 -->
+<script>
+function openComparisonPopup() {
+	const width = window.innerWidth * 0.6;  // 현재 브라우저 너비의 70%
+    const height = window.innerHeight * 0.9; // 현재 브라우저 높이의 90%
+    const left = (window.innerWidth - width) / 2;
+    const top = (window.innerHeight - height) / 2;
+    
+    // 그래프와 표를 그리기 위한 데이터 넘기기
+    const myKaptCode = document.getElementById("myKaptCode").value; // 우리집 아파트 코드
+    const otherKaptCode = document.getElementById("otherKaptCode").value; // 다른집 아파트 코드
+    const myYear = document.getElementById("year-home").value; // 우리집 발생년
+    const myMonth = document.getElementById("date-home").value; // 우리집 발생월
+    const otherYear = document.getElementById("year-other").value; // 다른집 발생년
+    const otherMonth = document.getElementById("date-other").value; // 다른집 발생월
+
+ 	// 유효성 체크 (선택 안 했을 때)
+    if (!myKaptCode || !otherKaptCode) {
+      alert("우리집과 다른집을 모두 선택해주세요!");
+      return;
+    }
+    
+ 	// URL 파라미터로 값을 넘겨서 팝업 창을 열기
+    const url = `feeComparePopup?myKaptCode=${myKaptCode}&otherKaptCode=${otherKaptCode}&myYear=${myYear}&myMonth=${myMonth}&otherYear=${otherYear}&otherMonth=${otherMonth}`;
+    
+    window.open(
+        url,
+        '_blank',
+        `width=${width},height=${height},left=${left},top=${top},scrollbars=yes,resizable=yes`
+    	);
+	}
+</script>
+</body>
+</html>

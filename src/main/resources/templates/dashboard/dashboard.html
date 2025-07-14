@@ -1,0 +1,774 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>대전 전력 사용량</title>
+</head>
+<style>
+    body {
+      margin: 0;
+      font-family: 'Segoe UI', sans-serif;
+    }
+    /* 헤더 시작 */
+    header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 15px 30px;
+      background-color: #f8f8f8;
+      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    }
+
+    .logo-site {
+      display: flex;
+      align-items: center;
+    }
+    /* 내비 로고 */
+    #header_logo {
+      width: 40px;
+    }
+
+    .site-name {
+      font-size: 1.7rem;
+      font-weight: bold;
+    }
+
+    nav {
+      margin-left: 10px; /* 사이트명과 메뉴 사이 간격 */
+    }
+
+    .menu {
+      display: flex;
+      gap: 60px;
+      margin-right: 120px;
+    }
+    /* 내비 메뉴 링크 */
+    .menu a {
+      text-decoration: none;
+      color: #333;
+      font-size: 1.3rem;
+      transition: color 0.3s;
+      font-weight: bold;
+    }
+    /* 내비 메뉴 커서 효과 */
+    .menu a:hover {
+      color: #2B8122;
+    }
+
+    @media (max-width: 768px) {
+      header {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+
+      nav {
+        margin-left: 0;
+        margin-top: 10px;
+      }
+
+      .menu {
+        flex-direction: column;
+        gap: 10px;
+      }
+    }
+     /* main 시작*/
+    main {
+        margin-left: 150px;
+        margin-right: 150px;
+    }
+    .title{
+        margin-top: 40px; /* 헤더와의 간격 추가 */
+    }
+    .main-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .page-title {
+        font-size: 2.5rem;
+        font-weight: bold;
+        margin: 0;
+    }
+
+    /* 아이콘 추가 시 크기 조절이나 여백 조절 가능 */
+    .icon-area img {
+      width: 120px;
+    }
+    /* 타이틀 제목 글씨 색 변경 */
+    .highlight {
+    color: #D52F2F;
+    }
+
+    .content-area {
+      display: flex;
+      margin-top: 40px;
+      gap: 40px;
+      margin-bottom: 40px;
+    }
+    .map-box, .graph-box {
+      flex: 1;
+      /* border: 2px solid #ddd; */
+      border-radius: 12px;
+      padding: 20px;
+      background-color: #ffe0e0;
+      box-shadow: 0 0 10px rgba(0,0,0,0.05);
+      max-width: 800px;
+      fill: none;
+    }
+    .map-box {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+/* .map-box svg path {
+      fill: #d0e4f7;
+      stroke: #333;
+      stroke-width: 1;
+      transition: all 0.3s ease;
+      cursor: pointer;
+    } */
+    /* .map-box svg path:hover {
+      transform: scale(1.05);
+      fill: #a5d2ff;
+    } */
+    /* 전체 wrapper - 상대 위치 설정 */
+    .graph-container {
+        position: relative;
+        display: flex;
+        flex-direction: column;
+        align-items: flex-end; /* 오른쪽 정렬 */
+        margin-top: 20px;
+    }
+
+    /* 버튼을 박스 바깥 왼쪽 상단에 위치 */
+    .graph-tabs {
+        position: absolute;
+        top: -34px;
+        left: 0;
+        display: flex;
+        z-index: 0;  /* 그래프 박스 뒤에 위치하도록 낮춤 */
+    }
+
+    /* 탭 버튼 스타일 */
+    .tab-btn {
+        background-color: #F5A4B5;
+        border: none;
+        padding: 8px 40px;
+        font-size: 1.1rem;
+        font-weight: bold;
+        border-radius: 8px 8px 0 0;
+        cursor: pointer;
+        color: black;
+    }
+
+    .tab-btn.active {
+        background-color: #E06B84;
+        color: black;
+    }
+
+    .tab-btn:hover {
+        background-color: #E06B84;
+    }
+
+    .tab-btn.active:hover {
+        background-color: #f1869d;
+    }
+
+    /* 그래프 박스 */
+    .graph-box {
+        position: relative;
+        width: 100%;
+        background-color: #fff3f3;
+        border: 3px solid #E9A7A1;
+        border-radius: 10px;
+        padding: 20px;
+        box-sizing: border-box;
+        z-index: 1;  /* 버튼보다 위에 올라오게 높게 섧정 */
+    }
+
+    .graph-header {
+        display: flex;
+        /* justify-content: space-between; */
+        align-items: center;
+        margin-bottom: 80px;
+    }
+
+    .graph-title {
+        font-weight: bold;
+        font-size: 1.1rem;
+        margin-right: 20px;
+    }
+
+    .year-select {
+        padding: 6px 12px;
+        font-size: 0.95rem;
+        border: 1px solid #ccc;
+        border-radius: 8px;
+        background-color: #fff;
+        color: #333;
+        outline: none;
+        background-repeat: no-repeat;
+        background-position: right 10px center;
+        background-size: 16px;
+        cursor: pointer;
+    }
+
+    /* 지도 */
+    #svg-container {
+        width: 100%;
+        max-width: 600px;
+        margin: 0 auto;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+    #svg-container svg {
+      display: block;
+      margin: auto;
+      width: 100%;
+      height: auto;
+    }
+
+    .hover-target {
+        cursor: pointer;
+        transition: transform 0.05s ease-out, fill 0.05s ease-out;
+        will-change: transform, fill;
+    }
+
+    .hover-target:hover {
+        transform: translateY(4px);
+        fill: #F5A4B5;
+    }
+    .back-btn img {
+      width: 24px;
+      height: 24px;
+      object-fit: contain;
+    }
+    .back-btn {
+      background: none;
+      border: none;
+      cursor: pointer;
+      margin-right: 10px;
+      padding: 4px;
+      transition: transform 0.2s ease;
+    }
+    .back-btn:hover {
+      transform: scale(1.1);
+    }
+    .graph-content {
+    position: relative;
+    padding: 20px;
+    background-color: #fff;
+    border-radius: 10px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+  }
+
+  #powerUsageChart {
+    width: 100%;
+    height: 400px;
+  }
+  /* ===== 푸터 ===== */
+	footer {
+    text-align: center;
+    padding: 8px 0;
+    font-size: 0.85rem;
+    color: #666;
+    background-color: #f8f8f8;
+    width: 100%;
+    margin-top: auto;
+    box-shadow: 0 3px 5px rgba(0, 0, 0, 0.8);
+  } 		
+
+</style>
+<body>
+    <header>
+    <div class="logo-site">
+		<a href="/" style="display: flex; align-items: center; text-decoration: none; color: inherit;">
+		   <div class="logo"><img src="./icon/메인로고_배경투명화.png" id="header_logo"></div>
+		   <div class="site-name">A.P.T</div>
+		</a>
+    </div>
+    <nav>
+      <div class="menu">
+        <a href="calculation">대기전력 계산</a>
+        <a href="/dashboard">전력 사용량 통계</a>
+        <a href="/feeCompare">전력 사용량 비교</a>
+        <a href="/product">가전 제품 추천</a>
+      </div>
+    </nav>
+  </header>
+  <main>
+    <section class="title">
+        <div class="main-header">
+            <h1 class="page-title">
+                우리 동네의<br><span class="highlight">전력 사용량</span>은?
+              </h1>
+            <div class="icon-area">
+              <img class="fa-solid fa-gear" src="./icon/메인_통계.png">
+            </div>
+          </div>
+    </section>
+    <section class="content-area">
+      <div class="map-box">
+        <div id="svg-container"></div>
+      </div>
+
+    <div class="graph-container">
+    <div class="graph-tabs">
+            <button class="tab-btn active">월별</button>
+            <button class="tab-btn">예측</button>
+        </div>
+        <div class="graph-box">
+			<div class="graph-header">
+			  <button class="back-btn" title="지도 다시 보기">
+			    <img src="./icon/우리동네_뒤로가기.png">
+			  </button>
+			  <span class="graph-title">서구 전력 사용량</span>
+			  <input type="number" class="year-select" min="2015" max="2030" value="2024" />
+			</div>
+            <div class="graph-content">
+            <canvas id="powerUsageChart"></canvas>
+            </div>
+        </div>
+    </div>
+    </section>
+  </main>
+  <!-- 푸터 -->
+    <footer>
+        <p>© 2025 A.P.T All rights reserved.</p>
+        <p>Made with 🖥️ by E.F</p>
+    </footer>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+  let chartInstance = null;
+  // 기본 지역 설정 (페이지 로드 시)
+  const initialRegion = "서구";
+
+  function renderChart(labels, data) {
+    const ctx = document.getElementById("powerUsageChart").getContext("2d");
+
+    if (chartInstance) {
+      chartInstance.destroy();
+    }
+
+    chartInstance = new Chart(ctx, {
+      type: "line",
+      data: {
+        labels: labels,
+        datasets: [{
+          label: "월별 전력 사용량 (kWh)",
+          data: data,
+          borderColor: "#FF5733",
+          backgroundColor: "rgba(255, 87, 51, 0.2)",
+          borderWidth: 2,
+          fill: true,
+          tension: 0.4,
+        }],
+      },
+      options: {
+        responsive: true,
+        plugins: {
+          legend: { position: "top" },
+          tooltip: {
+            backgroundColor: "#333",
+            titleColor: "#fff",
+            bodyColor: "#fff",
+            cornerRadius: 5,
+          }
+        },
+        scales: {
+          x: {
+            title: {
+              display: true,
+              text: "월",
+              color: "#333",
+              font: { size: 14 },
+            },
+            grid: { display: false },
+          },
+          y: {
+            title: {
+              display: true,
+              text: "전력 사용량 (kWh)",
+              color: "#333",
+              font: { size: 14 },
+            },
+            beginAtZero: true,
+            grid: { borderColor: "#ccc" },
+          }
+        }
+      }
+    });
+  }
+
+  // ✨ 실제 데이터 가져오는 함수 (Flask /actual_power_usage 호출)
+  function fetchActualData(region, year) {
+      console.log(`--- 실제 데이터 요청 시작 ---`);
+      console.log(`요청 지역: ${region}, 요청 연도: ${year}`);
+      fetch(`http://192.168.0.17:5000/actual_power_usage?district=${region}&year=${year}`, {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+        },
+      })
+        .then((res) => {
+            if (!res.ok) {
+                throw new Error(`HTTP error! status: ${res.status}`);
+            }
+            return res.json();
+        })
+        .then((json) => {
+          if (json.error) {
+            console.error("실제 데이터 오류:", json.error);
+            renderChart([], []); // 에러 발생 시 빈 그래프
+            alert(`실제 데이터를 가져오는 데 실패했습니다: ${json.error}`);
+          } else if (json.monthly_actual_data) {
+            // --- 이 부분 수정: 1월부터 12월까지 순서 보장 ---
+            const monthlyData = json.monthly_actual_data;
+            const labels = [];
+            const values = [];
+
+            for (let i = 1; i <= 12; i++) {
+                labels.push(`${i}월`);
+                // 해당 월의 데이터가 없으면 0.0으로 처리 (Flask에서 이미 처리하지만, 클라이언트에서 한 번 더 안정성 확보)
+                values.push(monthlyData[`${i}월`] || 0.0);
+            }
+            // --- 수정 끝 ---
+
+            console.log(`--- 실제 데이터 수신 완료 ---`);
+            console.log(`지역: ${json.district}, 연도: ${json.year}`);
+            console.log("월별 데이터 (실제 - 정렬됨):", monthlyData); // 원래 객체는 그대로 출력, Chart.js에 전달할 데이터는 정렬된 labels와 values
+            renderChart(labels, values);
+          } else {
+            console.error("실제 데이터 형식이 올바르지 않습니다:", json);
+            renderChart([], []);
+          }
+        })
+        .catch((err) => {
+          console.error("실제 데이터 요청 실패:", err);
+          renderChart([], []);
+          alert(`네트워크 오류 또는 서버 응답 문제: ${err.message}`);
+        });
+    }
+
+  // 예측 데이터 가져오는 함수 (Flask /predict_json 호출)
+  function fetchPredictedData(region, year) {
+      console.log(`--- Flask 예측 데이터 요청 시작 ---`);
+      console.log(`요청 지역: ${region}, 요청 연도: ${year}`);
+      fetch("http://192.168.0.17:5000/predict_json", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          district: region,
+          year: parseInt(year) // Flask에서 숫자로 받도록 parseInt 사용
+        }),
+      })
+        .then((res) => {
+            if (!res.ok) {
+                throw new Error(`HTTP error! status: ${res.status}`);
+            }
+            return res.json();
+        })
+        .then((json) => {
+          if (json.error) {
+            console.error("예측 데이터 오류:", json.error);
+            renderChart([], []); // 에러 발생 시 빈 그래프
+            alert(`예측 데이터를 가져오는 데 실패했습니다: ${json.error}`);
+          } else if (json.monthly_predictions) {
+            // --- 이 부분 수정: 1월부터 12월까지 순서 보장 ---
+            const monthlyPredictions = json.monthly_predictions;
+            const labels = [];
+            const values = [];
+
+            for (let i = 1; i <= 12; i++) {
+                labels.push(`${i}월`);
+                // 해당 월의 데이터가 없으면 0.0으로 처리
+                values.push(monthlyPredictions[`${i}월`] || 0.0);
+            }
+            // --- 수정 끝 ---
+
+            console.log(`--- Flask 예측 데이터 수신 완료 ---`);
+            console.log(`지역: ${json.district}, 연도: ${json.year}`);
+            console.log("월별 데이터 (예측 - 정렬됨):", monthlyPredictions); // 원래 객체는 그대로 출력, Chart.js에 전달할 데이터는 정렬된 labels와 values
+            renderChart(labels, values);
+          } else {
+            console.error("예측 데이터 형식이 올바르지 않습니다:", json);
+            renderChart([], []);
+          }
+        })
+        .catch((err) => {
+          console.error("예측 데이터 요청 실패:", err);
+          renderChart([], []);
+          alert(`네트워크 오류 또는 서버 응답 문제: ${err.message}`);
+        });
+    }
+
+
+  function loadRegionSVG(filename, hoverIds = []) {
+    fetch(filename)
+      .then(res => res.text())
+      .then(svgText => {
+        const container = document.getElementById("svg-container");
+        container.innerHTML = svgText;
+
+        const svg = container.querySelector("svg");
+        if (svg) {
+          svg.removeAttribute("width");
+          svg.removeAttribute("height");
+          svg.setAttribute("viewBox", "0 0 1170 1355");
+          svg.style.width = "100%";
+          svg.style.height = "auto";
+        }
+
+        hoverIds.forEach(id => {
+          const region = container.querySelector(`#${CSS.escape(id)}`);
+          if (region) {
+            region.classList.add("hover-target");
+
+            region.addEventListener("mouseenter", () => {
+              const tooltip = document.getElementById("tooltip");
+              tooltip.textContent = "🚩 " + id;
+              tooltip.style.display = "block";
+            });
+
+            region.addEventListener("mousemove", (e) => {
+              const tooltip = document.getElementById("tooltip");
+              tooltip.style.left = e.pageX + 10 + "px";
+              tooltip.style.top = e.pageY + 10 + "px";
+            });
+
+            region.addEventListener("mouseleave", () => {
+              document.getElementById("tooltip").style.display = "none";
+            });
+
+            region.addEventListener("click", () => {
+            	// 클릭한 구역의 SVG 크기 키우기 (전체 SVG 크기를 확대)
+                const svgContainer = document.getElementById("svg-container");
+                svgContainer.style.transition = "all 0.3s ease"; // 부드러운 트랜지션 효과
+                svgContainer.style.transform = "scale(2.2)"; // 크기를 2.2배로 확대
+                svgContainer.style.transformOrigin = "top center"; // 기준으로 확대
+
+              // 클릭된 구역 이름으로 그래프 제목 변경
+              document.querySelector(".graph-title").textContent = `${id} 전력 사용량`;
+
+              // 클릭된 구역에 대한 전력 사용량 데이터 요청
+              const selectedYear = document.querySelector(".year-select").value;
+              const activeTab = document.querySelector(".tab-btn.active").textContent;
+			  document.querySelector(".graph-title").textContent = `${id} 전력 사용량`;
+              console.log(`지도 클릭! 지역: ${id}, 연도: ${selectedYear}, 탭: ${activeTab}`);
+
+			  if (id.endsWith("동")) {
+			    requestPrediction(id, selectedYear);
+			  } else {
+			    if (activeTab === "월별") {
+			      fetchActualData(id, selectedYear);
+			    } else if (activeTab === "예측") {
+			      fetchPredictedData(id, selectedYear);
+			    }
+			  }
+
+              // 클릭된 구역에 따라 하위 행정동 SVG 로드
+              switch (id) {
+                case "대덕구":
+                  loadRegionSVG("/svg/대덕구_행정동.svg", [
+                    "대화동", "덕암동", "비래동", "석봉동", "송촌동",
+                    "목상동", "신탄진동", "오정동", "법1동", "법2동",
+                    "중리동", "회덕동"
+                  ]);
+                  break;
+                case "서구":
+                  loadRegionSVG("/svg/서구_행정동.svg", [
+                    "복수동", "도마1동", "도마2동", "정림동", "변동", "용문동", "탄방동",
+                    "둔산1동", "둔산2동", "괴정동", "가장동", "내동", "갈마1동", "갈마2동",
+                    "월평1동", "월평2동", "월평3동", "만년동", "가수원동", "기성동",
+                    "관저1동", "관저2동", "둔산3동"
+                  ]);
+                  break;
+                case "유성구":
+                  loadRegionSVG("/svg/유성구_행정동.svg", [
+                    "노은1동", "노은2동", "노은3동", "온천1동", "온천2동", "원신흥동",
+                    "신성동", "진잠동", "구즉동", "학하동", "상대동", "전민동", "관평동"
+                  ]);
+                  break;
+                case "동구":
+                  loadRegionSVG("/svg/동구_행정동.svg", [
+				  	"가양1동", "가양2동", "가오동", "대동", "대청동", "산내동", "삼성동",
+				    "성남동", "신인동", "신흥동", "용전동", "자양동", "중앙동",
+				    "판암1동", "판암2동", "홍도동", "효동", "용운동"
+                  ]);
+                  break;
+                case "중구":
+                  loadRegionSVG("/svg/중구_행정동.svg", [
+                    "대사동", "대흥동", "목동", "문창동", "문화1동", "문화2동",
+                    "부사동", "산성동", "석교동", "오류동", "용두동",
+                    "유천1동", "유천2동", "은행선화동", "중촌동",
+                    "태평1동", "태평2동"
+                  ]);
+                  break;
+                // 행정동 클릭 시에는 현재 그래프를 유지하거나, 더 세부적인 데이터를 로드할 수 있음
+				default:
+				  const selectedYear = document.querySelector(".year-select").value;
+				  const activeTab = document.querySelector(".tab-btn.active").textContent;
+
+				  console.log(`행정동 클릭됨: ${id}, 탭: ${activeTab}, 연도: ${selectedYear}`);
+				  break;
+              }
+            });
+          }
+        });
+      });
+  }
+
+
+  document.addEventListener("DOMContentLoaded", () => {
+    const defaultRegionIds = ["유성구", "동구", "서구", "중구", "대덕구"];
+    loadRegionSVG("/svg/대전_행정구역3_정제됨.svg", defaultRegionIds);
+
+    // 2024년 디폴트 설정
+    document.querySelector(".year-select").value = "2024";
+
+    // 페이지 로드 시 초기 그래프 데이터 로드 (기본 "서구"의 "2024년" "월별" 데이터)
+    const initialYear = document.querySelector(".year-select").value;
+    document.querySelector(".graph-title").textContent = `${initialRegion} 전력 사용량`; // 초기 제목 설정
+    fetchActualData(initialRegion, initialYear);
+
+
+    document.querySelector(".back-btn").addEventListener("click", () => {
+    	// SVG 컨테이너 크기 복원
+        const svgContainer = document.getElementById("svg-container");
+        svgContainer.style.transition = "all 0.2s ease"; // 부드러운 복원 효과
+        svgContainer.style.transform = "scale(1)"; // 원래 크기로 복원
+      loadRegionSVG("/svg/대전_행정구역3_정제됨.svg", defaultRegionIds);
+
+      // 대전 전체 지도로 돌아왔을 때, 기본 지역의 데이터 다시 로드 (예: 서구 2024년 월별 데이터)
+      const currentYear = document.querySelector(".year-select").value;
+      const activeTabContent = document.querySelector(".tab-btn.active").textContent;
+
+      document.querySelector(".graph-title").textContent = `${initialRegion} 전력 사용량`; // 제목 복원
+      if (activeTabContent === "월별") {
+          fetchActualData(initialRegion, currentYear);
+      } else if (activeTabContent === "예측") {
+          fetchPredictedData(initialRegion, currentYear);
+      }
+    });
+
+
+	// 탭 버튼 클릭 이벤트 리스너 추가
+	const tabButtons = document.querySelectorAll(".tab-btn");
+	tabButtons.forEach(button => {
+	  button.addEventListener("click", () => {
+	    tabButtons.forEach(btn => btn.classList.remove("active"));
+	    button.classList.add("active");
+
+	    const yearInput = document.querySelector(".year-select");
+
+	    // ✅ 예측 탭일 경우 2025로 고정 + 읽기 전용 설정
+	    if (button.textContent === "예측") {
+	      yearInput.value = "2025";
+	      yearInput.setAttribute("readonly", true);
+	    } else {
+	      // ✅ 월별 탭일 경우 읽기 가능하게 설정
+	      yearInput.value = "2024";
+	      yearInput.removeAttribute("readonly");
+	    }
+
+	    // 연도 변경 이벤트 트리거 (그래프 갱신)
+	    yearInput.dispatchEvent(new Event("change"));
+	  });
+	});
+
+    // 연도 선택 드롭다운 변경 이벤트 리스너 추가
+    document.querySelector(".year-select").addEventListener("change", (event) => {
+        const selectedYear = event.target.value;
+        const currentGraphTitle = document.querySelector(".graph-title").textContent;
+        const currentRegion = currentGraphTitle.replace(" 전력 사용량", "").trim();
+        const activeTabContent = document.querySelector(".tab-btn.active").textContent;
+
+        console.log(`연도 변경! 지역: ${currentRegion}, 새로운 연도: ${selectedYear}, 탭: ${activeTabContent}`);
+
+		if (currentRegion.endsWith("동")) {
+		  requestPrediction(currentRegion, selectedYear);
+		} else {
+		  if (activeTabContent === "월별") {
+		    fetchActualData(currentRegion, selectedYear);
+		  } else if (activeTabContent === "예측") {
+		    fetchPredictedData(currentRegion, selectedYear);
+		  }
+		}
+    });
+  });
+</script>
+<script>
+	function normalizeDongName(dong) {
+	  // '법1동', '판암2동' 등에서 숫자 제거 후 '법동', '판암동' 등으로 정규화
+	  if (dong === "은행선화동") return "선화동";
+	  return dong.replace(/(\D+)[0-9]+동$/, "$1동");
+	}
+
+	function requestPrediction(dong, year) {
+	  const normalizedDong = normalizeDongName(dong);
+	  const activeTab = document.querySelector(".tab-btn.active")?.textContent || "월별";
+
+	  console.log("요청 탭:", activeTab);
+	  console.log("요청 동:", dong, "정규화:", normalizedDong);
+	  console.log("요청 연도:", year);
+
+	  const url = activeTab === "예측"
+	    ? "http://192.168.0.15:5000/predict_xgb"
+	    : "http://192.168.0.15:5000/predict_real_fee";
+
+	  console.log("예측 요청 URL:", url);
+	  fetch(url, {
+	    method: "POST",
+	    headers: {
+	      "Content-Type": "application/json"
+	    },
+	    body: JSON.stringify({ dong: normalizedDong, year: parseInt(year) })
+	  })
+	    .then(res => {
+            if (!res.ok) {
+                throw new Error(`HTTP error! status: ${res.status}`);
+            }
+            return res.json();
+        })
+	    .then(data => {
+	      if (data.error) {
+	        console.error("동별 예측/실제 데이터 오류:", data.error);
+            renderChart([], []); // 에러 발생 시 빈 그래프
+	        alert(`🚧 ${dong} 데이터는 현재 준비 중입니다. 조금만 기다려주세요. 🚧`);
+	      } else {
+	        const labels = [];
+	        const values = [];
+
+            // 1월부터 12월까지 순서대로 데이터를 채웁니다.
+            for (let i = 1; i <= 12; i++) {
+                labels.push(`${i}월`);
+                const monthData = data.results.find(item => item.month === i);
+                let value = null;
+                if (monthData) {
+                    value = activeTab === "예측"
+                        ? monthData.xgb_pred ?? null
+                        : monthData.real_fee ?? null;
+                }
+                values.push(value !== null ? value : 0.0); // 데이터가 없으면 0.0으로 처리
+            }
+
+	        renderChart(labels, values);
+	      }
+	    })
+	    .catch(error => {
+	      console.error("동별 예측/실제 요청 실패:", error);
+	      alert("서버에 연결할 수 없습니다.");
+	      renderChart([], []); // 통신 실패 시 빈 그래프
+	    });
+	}
+
+</script>
+
+<div id="tooltip" style="position:absolute; display:none; background:#333; color:#fff; padding:5px 10px; border-radius:4px; font-size:0.9rem; pointer-events: none; z-index: 1000;"></div>
+</body>
+</html>
